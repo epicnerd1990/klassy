@@ -13,8 +13,8 @@
 namespace Breeze
 {
 
-ButtonBehaviour::ButtonBehaviour(KSharedConfig::Ptr config, KSharedConfig::Ptr presetsConfig, QWidget *parent)
-    : QDialog(parent)
+ButtonBehaviour::ButtonBehaviour(KSharedConfig::Ptr config, KSharedConfig::Ptr presetsConfig, QObject *parent)
+    : QDialog(static_cast<ConfigWidget *>(parent)->widget())
     , m_ui(new Ui_ButtonBehaviour)
     , m_configuration(config)
     , m_presetsConfiguration(presetsConfig)
@@ -373,7 +373,7 @@ ButtonBehaviour::ButtonBehaviour(KSharedConfig::Ptr config, KSharedConfig::Ptr p
         m_ui->buttonStateCheckedActive,
         qOverload<int>(&QComboBox::currentIndexChanged),
         this,
-        [=](const int i) {
+        [=, this](const int i) {
             setIndexOfOtherIfLocked(m_ui->buttonStateCheckedInactive, i);
         },
         Qt::ConnectionType::DirectConnection);
@@ -381,7 +381,7 @@ ButtonBehaviour::ButtonBehaviour(KSharedConfig::Ptr config, KSharedConfig::Ptr p
         m_ui->buttonStateCheckedInactive,
         qOverload<int>(&QComboBox::currentIndexChanged),
         this,
-        [=](const int i) {
+        [=, this](const int i) {
             setIndexOfOtherIfLocked(m_ui->buttonStateCheckedActive, i);
         },
         Qt::ConnectionType::DirectConnection);

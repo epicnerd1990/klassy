@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef breezewidgetstatedata_h
-#define breezewidgetstatedata_h
+#pragma once
 
 #include "breezegenericdata.h"
 
@@ -19,7 +18,7 @@ class WidgetStateData : public GenericData
 
 public:
     //* constructor
-    WidgetStateData(QObject *parent, QWidget *target, int duration, bool state = false)
+    WidgetStateData(QObject *parent, QObject *target, int duration, bool state = false)
         : GenericData(parent, target, duration)
         , _initialized(false)
         , _state(state)
@@ -43,5 +42,3 @@ private:
 };
 
 }
-
-#endif

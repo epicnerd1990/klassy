@@ -1,15 +1,15 @@
-#ifndef BREEZE_COLORTOOLS_H
-#define BREEZE_COLORTOOLS_H
-
 /*
  * SPDX-FileCopyrightText: 2021-2024 Paul A McAuley <kde@paulmcauley.com>
  *
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
  */
 
+#pragma once
+
 #include "breezecommon_export.h"
 
 #include <QColor>
+#include <QIcon>
 #include <QImage>
 
 namespace Breeze
@@ -62,5 +62,3 @@ public:
 };
 
 }
-
-#endif

@@ -20,21 +20,21 @@ bool ToolBoxEngine::registerWidget(QWidget *widget)
     }
 
     // connect destruction signal
-    connect(widget, SIGNAL(destroyed(QObject *)), this, SLOT(unregisterWidget(QObject *)), Qt::UniqueConnection);
+    connect(widget, &QObject::destroyed, this, &ToolBoxEngine::unregisterWidget, Qt::UniqueConnection);
     return true;
 }
 
 //____________________________________________________________
 bool ToolBoxEngine::updateState(const QPaintDevice *object, bool value)
 {
-    PaintDeviceDataMap<WidgetStateData>::Value data(ToolBoxEngine::data(object));
+    const QPointer<WidgetStateData> data = ToolBoxEngine::data(object);
     return (data && data.data()->updateState(value));
 }
 
 //____________________________________________________________
 bool ToolBoxEngine::isAnimated(const QPaintDevice *object)
 {
-    PaintDeviceDataMap<WidgetStateData>::Value data(ToolBoxEngine::data(object));
+    const QPointer<WidgetStateData> data = ToolBoxEngine::data(object);
     return (data && data.data()->animation() && data.data()->animation().data()->isRunning());
 }
 

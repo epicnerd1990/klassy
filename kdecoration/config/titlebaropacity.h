@@ -1,11 +1,10 @@
-#ifndef TITLEBAROPACITY_H
-#define TITLEBAROPACITY_H
-
 /*
  * SPDX-FileCopyrightText: 2023 Paul A McAuley <kde@paulmcauley.com>
  *
  * SPDX-License-Identifier: MIT
  */
+
+#pragma once
 
 #include "breeze.h"
 #include "breezesettings.h"
@@ -22,7 +21,7 @@ class TitleBarOpacity : public QDialog
     friend class ConfigWidget;
 
 public:
-    explicit TitleBarOpacity(KSharedConfig::Ptr config, KSharedConfig::Ptr presetsConfig, QWidget *parent = nullptr);
+    explicit TitleBarOpacity(KSharedConfig::Ptr config, KSharedConfig::Ptr presetsConfig, QObject *parent = nullptr);
     ~TitleBarOpacity();
 
     void loadMain(const bool assignUiValuesOnly = false);
@@ -82,5 +81,3 @@ private:
 };
 
 }
-
-#endif // TITLEBAROPACITY_H

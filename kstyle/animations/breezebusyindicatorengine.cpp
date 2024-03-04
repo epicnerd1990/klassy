@@ -38,7 +38,7 @@ bool BusyIndicatorEngine::registerWidget(QObject *object)
         _data.insert(object, new BusyIndicatorData(this));
 
         // connect destruction signal
-        connect(object, SIGNAL(destroyed(QObject *)), this, SLOT(unregisterWidget(QObject *)), Qt::UniqueConnection);
+        connect(object, &QObject::destroyed, this, &BusyIndicatorEngine::unregisterWidget, Qt::UniqueConnection);
 
 #if BREEZE_HAVE_QTQUICK
         if (QQuickItem *item = qobject_cast<QQuickItem *>(object)) {
@@ -127,14 +127,13 @@ void BusyIndicatorEngine::setValue(int value)
             // update animation flag
             animated = true;
 
-            // emit update signal on object
-            if (const_cast<QObject *>(iter.key())->inherits("KQuickStyleItem")) {
-                // KQuickStyleItem "rerender" method is updateItem
-                QMetaObject::invokeMethod(const_cast<QObject *>(iter.key()), "updateItem", Qt::QueuedConnection);
-
-            } else {
-                QMetaObject::invokeMethod(const_cast<QObject *>(iter.key()), "update", Qt::QueuedConnection);
+#if BREEZE_HAVE_QTQUICK
+            const void *key = iter.key();
+            QObject *obj = const_cast<QObject *>(static_cast<const QObject *>(key));
+            if (QQuickItem *item = qobject_cast<QQuickItem *>(obj)) {
+                item->polish();
             }
+#endif
         }
     }
 

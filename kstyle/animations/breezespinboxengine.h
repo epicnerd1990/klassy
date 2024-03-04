@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef breezespinboxengine_h
-#define breezespinboxengine_h
+#pragma once
 
 #include "breezebaseengine.h"
 #include "breezedatamap.h"
@@ -27,7 +26,7 @@ public:
     }
 
     //* register widget
-    bool registerWidget(QWidget *);
+    bool registerWidget(QObject *target);
 
     //* state
     bool updateState(const QObject *object, QStyle::SubControl subControl, bool value)
@@ -87,5 +86,3 @@ private:
 };
 
 }
-
-#endif

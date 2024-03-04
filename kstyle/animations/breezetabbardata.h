@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef breezetabbar_data_h
-#define breezetabbar_data_h
+#pragma once
 
 #include "breezeanimationdata.h"
 
@@ -25,7 +24,7 @@ class TabBarData : public AnimationData
 
 public:
     //* constructor
-    TabBarData(QObject *parent, QWidget *target, int duration);
+    TabBarData(QObject *parent, QObject *target, int duration);
 
     //* duration
     void setDuration(int duration) override
@@ -146,5 +145,3 @@ private:
 };
 
 }
-
-#endif

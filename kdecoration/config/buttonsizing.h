@@ -1,11 +1,10 @@
-#ifndef BUTTONSIZING_H
-#define BUTTONSIZING_H
-
 /*
  * SPDX-FileCopyrightText: 2022-2023 Paul A McAuley <kde@paulmcauley.com>
  *
  * SPDX-License-Identifier: MIT
  */
+
+#pragma once
 
 #include "breeze.h"
 #include "breezesettings.h"
@@ -22,7 +21,7 @@ class ButtonSizing : public QDialog
     friend class ConfigWidget;
 
 public:
-    explicit ButtonSizing(KSharedConfig::Ptr config, KSharedConfig::Ptr presetsConfig, QWidget *parent = nullptr);
+    explicit ButtonSizing(KSharedConfig::Ptr config, KSharedConfig::Ptr presetsConfig, QObject *parent = nullptr);
     ~ButtonSizing();
 
     void loadMain(const bool assignUiValuesOnly = false);
@@ -82,5 +81,3 @@ private:
 };
 
 }
-
-#endif // BUTTONSIZING_H

@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef breezestyle_h
-#define breezestyle_h
+#pragma once
 
 #include "breeze.h"
 #include "breezehelper.h"
@@ -447,6 +446,10 @@ private:
         return QRect(rect.left() + (rect.width() - width) / 2, rect.top() + (rect.height() - height) / 2, width, height);
     }
 
+    static int sliderTickMarksLength();
+
+    static QRect sliderRectWithoutTickMarks(const QStyleOptionSlider *option);
+
     /*
     Checks whether the point is before the bound rect for bound of given orientation.
     This is needed to implement custom number of buttons in scrollbars,
@@ -593,5 +596,3 @@ bool Style::hasParent(const QWidget *widget, const char *className) const
     return false;
 }
 }
-
-#endif

@@ -12,70 +12,28 @@ namespace Breeze
 {
 
 //____________________________________________________________
-bool WidgetStateEngine::registerWidget(QWidget *widget, AnimationModes mode)
+bool WidgetStateEngine::registerWidget(QObject *target, AnimationModes modes)
 {
-    if (!widget) {
+    if (!target) {
         return false;
     }
-    if (mode & AnimationHover && !_hoverData.contains(widget)) {
-        _hoverData.insert(widget, new WidgetStateData(this, widget, duration()), enabled());
+    if (modes & AnimationHover && !_hoverData.contains(target)) {
+        _hoverData.insert(target, new WidgetStateData(this, target, duration()), enabled());
     }
-    if (mode & AnimationFocus && !_focusData.contains(widget)) {
-        _focusData.insert(widget, new WidgetStateData(this, widget, duration()), enabled());
+    if (modes & AnimationFocus && !_focusData.contains(target)) {
+        _focusData.insert(target, new WidgetStateData(this, target, duration()), enabled());
     }
-    if (mode & AnimationEnable && !_enableData.contains(widget)) {
-        _enableData.insert(widget, new EnableData(this, widget, duration()), enabled());
+    if (modes & AnimationEnable && !_enableData.contains(target)) {
+        _enableData.insert(target, new EnableData(this, target, duration()), enabled());
     }
-    if (mode & AnimationPressed && !_pressedData.contains(widget)) {
-        _pressedData.insert(widget, new WidgetStateData(this, widget, duration()), enabled());
+    if (modes & AnimationPressed && !_pressedData.contains(target)) {
+        _pressedData.insert(target, new WidgetStateData(this, target, duration()), enabled());
     }
 
     // connect destruction signal
-    connect(widget, SIGNAL(destroyed(QObject *)), this, SLOT(unregisterWidget(QObject *)), Qt::UniqueConnection);
+    connect(target, &QObject::destroyed, this, &WidgetStateEngine::unregisterWidget, Qt::UniqueConnection);
 
     return true;
-}
-
-//____________________________________________________________
-BaseEngine::WidgetList WidgetStateEngine::registeredWidgets(AnimationModes mode) const
-{
-    WidgetList out;
-
-    using Value = DataMap<WidgetStateData>::Value;
-
-    if (mode & AnimationHover) {
-        foreach (const Value &value, _hoverData) {
-            if (value) {
-                out.insert(value.data()->target().data());
-            }
-        }
-    }
-
-    if (mode & AnimationFocus) {
-        foreach (const Value &value, _focusData) {
-            if (value) {
-                out.insert(value.data()->target().data());
-            }
-        }
-    }
-
-    if (mode & AnimationEnable) {
-        foreach (const Value &value, _enableData) {
-            if (value) {
-                out.insert(value.data()->target().data());
-            }
-        }
-    }
-
-    if (mode & AnimationPressed) {
-        foreach (const Value &value, _pressedData) {
-            if (value) {
-                out.insert(value.data()->target().data());
-            }
-        }
-    }
-
-    return out;
 }
 
 //____________________________________________________________
@@ -86,14 +44,14 @@ bool WidgetStateEngine::updateState(const QObject *object, AnimationMode mode, b
 }
 
 //____________________________________________________________
-bool WidgetStateEngine::isAnimated(const QObject *object, AnimationMode mode)
+bool WidgetStateEngine::isAnimated(const void *object, AnimationMode mode)
 {
     DataMap<WidgetStateData>::Value data(WidgetStateEngine::data(object, mode));
     return (data && data.data()->animation() && data.data()->animation().data()->isRunning());
 }
 
 //____________________________________________________________
-DataMap<WidgetStateData>::Value WidgetStateEngine::data(const QObject *object, AnimationMode mode)
+DataMap<WidgetStateData>::Value WidgetStateEngine::data(const void *object, AnimationMode mode)
 {
     switch (mode) {
     case AnimationHover:

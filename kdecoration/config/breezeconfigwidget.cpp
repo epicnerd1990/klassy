@@ -42,25 +42,25 @@ namespace Breeze
 {
 
 //_________________________________________________________
-ConfigWidget::ConfigWidget(QWidget *parent, const QVariantList &args)
-    : KCModule(parent, args)
+ConfigWidget::ConfigWidget(QObject *parent, const KPluginMetaData &data, const QVariantList & /*args*/)
+    : KCModule(parent, data)
     , m_configuration(KSharedConfig::openConfig(QStringLiteral("klassy/klassyrc")))
     , m_presetsConfiguration(KSharedConfig::openConfig(QStringLiteral("klassy/windecopresetsrc")))
     , m_changed(false)
 {
-    QDialog *parentDialog = qobject_cast<QDialog *>(parent);
-
     // this is a hack to get an Apply button
-    if (parentDialog && QCoreApplication::applicationName() == QStringLiteral("systemsettings")) {
-        system("kcmshell5 plasma/kcms/klassy/kcm_klassydecoration &");
-        parentDialog->close();
+    if (widget() && QCoreApplication::applicationName() == QStringLiteral("systemsettings")) {
+        if (widget()->window()) {
+            widget()->window()->close();
+        }
+        system("kcmshell6 org.kde.kdecoration2.kcm/kcm_klassydecoration.so &");
     }
     setButtons(KCModule::Default | KCModule::Apply);
 
     initKlassydecorationConfigQrc();
 
     // configuration
-    m_ui.setupUi(this);
+    m_ui.setupUi(widget());
 
     m_ui.defaultExceptions->setKConfig(m_configuration, m_presetsConfiguration);
     m_ui.exceptions->setKConfig(m_configuration, m_presetsConfiguration);
@@ -73,12 +73,12 @@ ConfigWidget::ConfigWidget(QWidget *parent, const QVariantList &args)
     presetsButtonVLayout->setContentsMargins(0, 0, 0, 0);
     m_ui.gridLayout_9->addLayout(presetsButtonVLayout, 0, 0, Qt::AlignRight | Qt::AlignTop);
     connect(m_presetsButton, &QAbstractButton::clicked, this, &ConfigWidget::presetsButtonClicked);
-    this->setTabOrder(m_presetsButton, m_ui.tabWidget);
 
-    // hide the title if a kcmshell dialog
-    if (this->window()) {
-        window()->setMinimumWidth(775);
-        m_kPageWidget = this->window()->findChild<KPageWidget *>();
+    widget()->setTabOrder(m_presetsButton, m_ui.tabWidget);
+
+    // hide the title if not klassy-settings
+    if (widget()->window() && qAppName() != "klassy-settings") {
+        m_kPageWidget = widget()->window()->findChild<KPageWidget *>();
         if (m_kPageWidget) {
             KPageWidgetItem *currentPage = m_kPageWidget->currentPage();
             if (currentPage)
@@ -126,11 +126,6 @@ ConfigWidget::ConfigWidget(QWidget *parent, const QVariantList &args)
 
     // update the horizontal header icons in-case the icon style has changed
     connect(this, &ConfigWidget::saved, m_buttonColorsDialog, &ButtonColors::load);
-
-    // this is necessary because when you reload the kwin config in a sub-dialog it prevents this main dialog from saving (this happens when run from
-    // systemsettings only)
-    if (parentDialog && QCoreApplication::applicationName() == QStringLiteral("systemsettings"))
-        connect(parentDialog, &QDialog::accepted, this, &ConfigWidget::save);
 
 #if KLASSY_GIT_MASTER
     // set the long version string if from the git master
@@ -251,7 +246,7 @@ void ConfigWidget::load()
         m_ui.defaultExceptionsSpacer->setGeometry(QRect());
     }
     m_ui.exceptions->setExceptions(exceptions.get());
-    setChanged(false);
+    setNeedsSave(false);
     m_loading = false;
 }
 
@@ -304,7 +299,7 @@ void ConfigWidget::saveMain(QString saveAsPresetName)
     // sync configuration for exceptions
     m_configuration->sync();
 
-    setChanged(false);
+    setNeedsSave(false);
     Q_EMIT saved();
 
     if (!saveAsPresetName.isEmpty()) { // set the preset
@@ -378,7 +373,7 @@ void ConfigWidget::defaults()
 
     updateIconsStackedWidgetVisible();
     updateBackgroundShapeStackedWidgetVisible();
-    setChanged(!isDefaults());
+    setNeedsSave(!isDefaults());
 
     m_processingDefaults = false;
     m_defaultsPressed = true;
@@ -501,13 +496,7 @@ void ConfigWidget::updateChanged()
     else if (m_ui.exceptions->isChanged())
         modified = true;
 
-    setChanged(modified);
-}
-
-//_______________________________________________
-void ConfigWidget::setChanged(bool value)
-{
-    Q_EMIT changed(value);
+    setNeedsSave(modified);
 }
 
 void ConfigWidget::kPageWidgetChanged(KPageWidgetItem *current, KPageWidgetItem *before)
@@ -556,7 +545,7 @@ void ConfigWidget::updateBackgroundShapeStackedWidgetVisible()
 
 void ConfigWidget::dialogChanged(bool changed)
 {
-    setChanged(changed);
+    setNeedsSave(changed);
 }
 
 void ConfigWidget::systemIconGenerationButtonClicked()
@@ -573,7 +562,6 @@ void ConfigWidget::buttonColorsButtonClicked()
 {
     m_buttonColorsDialog->setWindowTitle(i18n("Button Colours - Klassy Settings"));
     m_buttonColorsDialog->setWindowIcon(QIcon::fromTheme(QStringLiteral("color-management")));
-    m_buttonColorsDialog->resizeDialog();
     m_buttonColorsDialog->show();
 }
 
@@ -684,9 +672,10 @@ void ConfigWidget::updateWindowControlPreviewIcons()
 
 void ConfigWidget::generateWindowControlPreviewIcon(QSize size, InternalSettings::EnumButtonIconStyle::type iconStyle)
 {
-    QSize sizeScaled(qRound(size.width() * devicePixelRatioF()), qRound(size.height() * devicePixelRatioF()));
+    qreal dpr = widget()->devicePixelRatioF();
+    QSize sizeScaled(qRound(size.width() * dpr), qRound(size.height() * dpr));
     QPixmap pixmap(sizeScaled);
-    pixmap.setDevicePixelRatio(devicePixelRatioF());
+    pixmap.setDevicePixelRatio(dpr);
 
     pixmap.fill(QColor("#eeeff0"));
 
@@ -705,14 +694,14 @@ void ConfigWidget::generateWindowControlPreviewIcon(QSize size, InternalSettings
     int iconSpacing = 14;
 
     bool boldIcons = (m_ui.boldButtonIcons->currentIndex() == InternalSettings::EnumBoldButtonIcons::BoldIconsBold
-                      || (m_ui.boldButtonIcons->currentIndex() == InternalSettings::EnumBoldButtonIcons::BoldIconsHiDpiOnly && devicePixelRatioF() >= 1.2));
+                      || (m_ui.boldButtonIcons->currentIndex() == InternalSettings::EnumBoldButtonIcons::BoldIconsHiDpiOnly && dpr >= 1.2));
     auto internalSettings = InternalSettingsPtr(new InternalSettings());
     internalSettings->setButtonIconStyle(iconStyle);
 
-    auto [iconRenderer, localRenderingWidth](RenderDecorationButtonIcon::factory(internalSettings, painter.get(), false, boldIcons, devicePixelRatioF()));
+    auto [iconRenderer, localRenderingWidth](RenderDecorationButtonIcon::factory(internalSettings, painter.get(), false, boldIcons, dpr));
 
     QPen pen("#bcc1c5");
-    pen.setWidthF(PenWidth::Symbol * devicePixelRatioF());
+    pen.setWidthF(PenWidth::Symbol * dpr);
     pen.setCosmetic(true);
     painter->setPen(pen);
 
@@ -723,7 +712,7 @@ void ConfigWidget::generateWindowControlPreviewIcon(QSize size, InternalSettings
     iconRenderer->setDeviceOffsetFromZeroReference(painter->deviceTransform().map(iconTopLeft));
     painter->setViewport(0, 0, iconSize.width(), iconSize.height());
     painter->setWindow(0, 0, localRenderingWidth, localRenderingWidth);
-    iconRenderer->renderIcon(KDecoration2::DecorationButtonType::Minimize, false);
+    iconRenderer->renderIcon(DecorationButtonType::Minimize, false);
     painter->restore();
 
     iconTopLeft = QPoint(iconTopLeft.x() + iconSize.width() + iconSpacing, iconTopLeft.y());
@@ -732,7 +721,7 @@ void ConfigWidget::generateWindowControlPreviewIcon(QSize size, InternalSettings
     iconRenderer->setDeviceOffsetFromZeroReference(painter->deviceTransform().map(iconTopLeft));
     painter->setViewport(0, 0, iconSize.width(), iconSize.height());
     painter->setWindow(0, 0, localRenderingWidth, localRenderingWidth);
-    iconRenderer->renderIcon(KDecoration2::DecorationButtonType::Maximize, true);
+    iconRenderer->renderIcon(DecorationButtonType::Maximize, true);
     painter->restore();
 
     iconTopLeft = QPoint(iconTopLeft.x() + iconSize.width() + iconSpacing, iconTopLeft.y());
@@ -741,7 +730,7 @@ void ConfigWidget::generateWindowControlPreviewIcon(QSize size, InternalSettings
     iconRenderer->setDeviceOffsetFromZeroReference(painter->deviceTransform().map(iconTopLeft));
     painter->setViewport(0, 0, iconSize.width(), iconSize.height());
     painter->setWindow(0, 0, localRenderingWidth, localRenderingWidth);
-    iconRenderer->renderIcon(KDecoration2::DecorationButtonType::Close, false);
+    iconRenderer->renderIcon(DecorationButtonType::Close, false);
     painter->restore();
 
     pen = painter->pen();
@@ -753,7 +742,7 @@ void ConfigWidget::generateWindowControlPreviewIcon(QSize size, InternalSettings
     iconRenderer->setDeviceOffsetFromZeroReference(painter->deviceTransform().map(iconTopLeft));
     painter->setViewport(0, 0, iconSize.width(), iconSize.height());
     painter->setWindow(0, 0, localRenderingWidth, localRenderingWidth);
-    iconRenderer->renderIcon(KDecoration2::DecorationButtonType::Minimize, false);
+    iconRenderer->renderIcon(DecorationButtonType::Minimize, false);
     painter->restore();
 
     iconTopLeft = QPoint(iconTopLeft.x() + iconSize.width() + iconSpacing, iconTopLeft.y());
@@ -762,7 +751,7 @@ void ConfigWidget::generateWindowControlPreviewIcon(QSize size, InternalSettings
     iconRenderer->setDeviceOffsetFromZeroReference(painter->deviceTransform().map(iconTopLeft));
     painter->setViewport(0, 0, iconSize.width(), iconSize.height());
     painter->setWindow(0, 0, localRenderingWidth, localRenderingWidth);
-    iconRenderer->renderIcon(KDecoration2::DecorationButtonType::Maximize, false);
+    iconRenderer->renderIcon(DecorationButtonType::Maximize, false);
     painter->restore();
 
     iconTopLeft = QPoint(iconTopLeft.x() + iconSize.width() + iconSpacing, iconTopLeft.y());
@@ -771,7 +760,7 @@ void ConfigWidget::generateWindowControlPreviewIcon(QSize size, InternalSettings
     iconRenderer->setDeviceOffsetFromZeroReference(painter->deviceTransform().map(iconTopLeft));
     painter->setViewport(0, 0, iconSize.width(), iconSize.height());
     painter->setWindow(0, 0, localRenderingWidth, localRenderingWidth);
-    iconRenderer->renderIcon(KDecoration2::DecorationButtonType::Close, false);
+    iconRenderer->renderIcon(DecorationButtonType::Close, false);
     painter->restore();
 
     QIcon icon(pixmap);
@@ -786,8 +775,14 @@ bool ConfigWidget::eventFilter(QObject *obj, QEvent *ev)
         updateIcons();
         return QObject::eventFilter(obj, ev);
     } else if (ev->type() == QEvent::Show) {
-        connect(window()->windowHandle(), &QWindow::screenChanged, this, &ConfigWidget::updateIcons, Qt::ConnectionType::UniqueConnection);
-        connect(window()->windowHandle(), &QWindow::screenChanged, this, &ConfigWidget::updateWindowControlPreviewIcons, Qt::ConnectionType::UniqueConnection);
+        if (widget()->window()) {
+            connect(widget()->window()->windowHandle(), &QWindow::screenChanged, this, &ConfigWidget::updateIcons, Qt::ConnectionType::UniqueConnection);
+            connect(widget()->window()->windowHandle(),
+                    &QWindow::screenChanged,
+                    this,
+                    &ConfigWidget::updateWindowControlPreviewIcons,
+                    Qt::ConnectionType::UniqueConnection);
+        }
         return QObject::eventFilter(obj, ev);
     }
 

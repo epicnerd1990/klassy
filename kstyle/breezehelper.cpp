@@ -21,6 +21,9 @@
 #include <KColorUtils>
 #include <KIconLoader>
 #include <KWindowSystem>
+#if __has_include(<KX11Extras>)
+#include <KX11Extras>
+#endif
 
 #include <algorithm>
 #include <memory>
@@ -34,15 +37,8 @@
 #include <QMdiArea>
 #include <QMenuBar>
 #include <QPainter>
+#include <QStyleOption>
 #include <QWindow>
-
-#if BREEZE_HAVE_QTX11EXTRAS
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-#include <private/qtx11extras_p.h>
-#else
-#include <QX11Info>
-#endif
-#endif
 
 namespace Breeze
 {
@@ -368,7 +364,7 @@ QPalette Helper::disabledPalette(const QPalette &source, qreal ratio) const
 
     const QList<QPalette::ColorRole> roles =
         {QPalette::Window, QPalette::Highlight, QPalette::WindowText, QPalette::ButtonText, QPalette::Text, QPalette::Button};
-    foreach (const QPalette::ColorRole &role, roles) {
+    for (const QPalette::ColorRole &role : roles) {
         copy.setColor(role, KColorUtils::mix(source.color(QPalette::Active, role), source.color(QPalette::Disabled, role), 1.0 - ratio));
     }
 
@@ -1155,6 +1151,45 @@ void Helper::renderDialGroove(QPainter *painter, const QRect &rect, const QColor
 }
 
 //______________________________________________________________________________
+void Helper::initSliderStyleOption(const QSlider *slider, QStyleOptionSlider *option) const
+{
+    option->initFrom(slider);
+    option->subControls = QStyle::SC_None;
+    option->activeSubControls = QStyle::SC_None;
+    option->orientation = slider->orientation();
+    option->maximum = slider->maximum();
+    option->minimum = slider->minimum();
+    option->tickPosition = slider->tickPosition();
+    option->tickInterval = slider->tickInterval();
+    option->upsideDown = (slider->orientation() == Qt::Horizontal) //
+        ? (slider->invertedAppearance() != (option->direction == Qt::RightToLeft))
+        : (!slider->invertedAppearance());
+    option->direction = Qt::LeftToRight; // we use the upsideDown option instead
+    option->sliderPosition = slider->sliderPosition();
+    option->sliderValue = slider->value();
+    option->singleStep = slider->singleStep();
+    option->pageStep = slider->pageStep();
+    if (slider->orientation() == Qt::Horizontal) {
+        option->state |= QStyle::State_Horizontal;
+    }
+    // Can't fetch activeSubControls, because it's private API
+}
+
+//______________________________________________________________________________
+QRectF Helper::pathForSliderHandleFocusFrame(QPainterPath &focusFramePath, const QRect &rect, int hmargin, int vmargin) const
+{
+    // Mimics path and adjustments of renderSliderHandle
+    QRectF frameRect(rect);
+    frameRect.translate(hmargin, vmargin);
+    frameRect.adjust(1, 1, -1, -1);
+    frameRect = strokedRect(frameRect);
+    focusFramePath.addEllipse(frameRect);
+    frameRect.adjust(-hmargin, -vmargin, hmargin, vmargin);
+    focusFramePath.addEllipse(frameRect);
+    return frameRect;
+}
+
+//______________________________________________________________________________
 void Helper::renderSliderHandle(QPainter *painter, const QRect &rect, const QColor &color, const QColor &outline, const QColor &shadow, bool sunken) const
 {
     // setup painter
@@ -1277,6 +1312,11 @@ void Helper::renderScrollBarHandle(QPainter *painter, const QRect &rect, const Q
 
 void Helper::renderScrollBarGroove(QPainter *painter, const QRect &rect, const QColor &color) const
 {
+    // check for negative size, possible with squeezed controls
+    if (!rect.isValid()) {
+        return;
+    }
+
     // setup painter
     painter->setRenderHint(QPainter::Antialiasing, true);
 
@@ -1474,7 +1514,7 @@ void Helper::renderArrow(QPainter *painter, const QRect &rect, const QColor &col
 //______________________________________________________________________________
 void Helper::renderDecorationButton(QPainter *painter,
                                     const QRect &rect,
-                                    KDecoration2::DecorationButtonType buttonType,
+                                    DecorationButtonType buttonType,
                                     const bool buttonChecked,
                                     const QColor &foregroundColor,
                                     const bool cutOutForeground,
@@ -1705,11 +1745,13 @@ QPainterPath Helper::roundedPath(const QRectF &rect, Corners corners, qreal radi
 //________________________________________________________________________________________________________
 bool Helper::compositingActive() const
 {
-#if BREEZE_HAVE_QTX11EXTRAS
     if (isX11()) {
-        return QX11Info::isCompositingManagerRunning(QX11Info::appScreen());
-    }
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        return KWindowSystem::compositingActive();
+#elif __has_include(<KX11Extras>)
+        return KX11Extras::compositingActive();
 #endif
+    }
 
     return true;
 }
@@ -1722,14 +1764,19 @@ bool Helper::hasAlphaChannel(const QWidget *widget) const
 
 //______________________________________________________________________________________
 
-QPixmap Helper::coloredIcon(const QIcon &icon, const QPalette &palette, const QSize &size, QIcon::Mode mode, QIcon::State state)
+QPixmap Helper::coloredIcon(const QIcon &icon, const QPalette &palette, const QSize &size, qreal devicePixelRatio, QIcon::Mode mode, QIcon::State state)
 {
     const QPalette activePalette = KIconLoader::global()->customPalette();
     const bool changePalette = activePalette != palette;
     if (changePalette) {
         KIconLoader::global()->setCustomPalette(palette);
     }
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    const QPixmap pixmap = icon.pixmap(size, devicePixelRatio, mode, state);
+#else
+    Q_UNUSED(devicePixelRatio);
     const QPixmap pixmap = icon.pixmap(size, mode, state);
+#endif
     if (changePalette) {
         if (activePalette == QPalette()) {
             KIconLoader::global()->resetPalette();

@@ -17,7 +17,6 @@
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QIcon>
-#include <QTimer>
 
 #include <KCMultiDialog>
 #include <KConfig>
@@ -48,17 +47,15 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    app.setWindowIcon(QIcon::fromTheme(QStringLiteral("klassy-settings")));
-    app.setAttribute(Qt::AA_UseHighDpiPixmaps);
-
     KCMultiDialog dialog;
     dialog.setWindowTitle(i18n("Klassy Settings"));
     dialog.setMinimumWidth(800);
-    dialog.addModule(KPluginMetaData(QStringLiteral("plasma/kcms/systemsettings_qwidgets/klassystyleconfig")));
-    dialog.addModule(KPluginMetaData(QStringLiteral("plasma/kcms/klassy/kcm_klassydecoration")));
+    dialog.addModule(KPluginMetaData(QStringLiteral("kstyle_config/klassystyleconfig")));
+    dialog.addModule(KPluginMetaData(QStringLiteral("org.kde.kdecoration2.kcm/kcm_klassydecoration.so")));
     dialog.show();
 
-    foreach (auto child, dialog.findChildren<QAbstractScrollArea *>()) {
+    const auto children = dialog.findChildren<QAbstractScrollArea *>();
+    for (auto child : children) {
         child->adjustSize();
         child->viewport()->adjustSize();
     }
@@ -150,9 +147,6 @@ CommandLineProcessResult processComandLine(QApplication &app, QCommandLineParser
         DBusMessages::kwinReloadConfig();
 
         output << i18n("Preset, \"") << parser.value(loadWindecoPresetOption) << i18n("\" loaded...") << Qt::endl;
-        // if Decoration::reconfigure is reloaded twice the corruption when changing border sizes clears, therefore tell Decoration to reconfigure again after 1
-        // second
-        QTimer::singleShot(1000, &DBusMessages::kwinReloadConfig);
     }
 
     if (parser.isSet(generateIcons) || parser.isSet(loadWindecoPresetOption)) {

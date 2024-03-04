@@ -1,11 +1,10 @@
-#ifndef SHADOWSTYLE_H
-#define SHADOWSTYLE_H
-
 /*
  * SPDX-FileCopyrightText: 2023 Paul A McAuley <kde@paulmcauley.com>
  *
  * SPDX-License-Identifier: MIT
  */
+
+#pragma once
 
 #include "breeze.h"
 #include "breezesettings.h"
@@ -22,7 +21,7 @@ class ShadowStyle : public QDialog
     friend class ConfigWidget;
 
 public:
-    explicit ShadowStyle(KSharedConfig::Ptr config, KSharedConfig::Ptr presetsConfig, QWidget *parent = nullptr);
+    explicit ShadowStyle(KSharedConfig::Ptr config, KSharedConfig::Ptr presetsConfig, QObject *parent = nullptr);
     ~ShadowStyle();
 
     void save(const bool reloadKwinConfig = true);
@@ -67,5 +66,3 @@ private:
 };
 
 }
-
-#endif // SHADOWSTYLE_H

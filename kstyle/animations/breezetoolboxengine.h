@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef breezetoolboxengine_h
-#define breezetoolboxengine_h
+#pragma once
 
 #include "breezebaseengine.h"
 #include "breezedatamap.h"
@@ -71,16 +70,14 @@ public Q_SLOTS:
 
 protected:
     //* returns data associated to widget
-    PaintDeviceDataMap<WidgetStateData>::Value data(const QPaintDevice *object)
+    DataMap<WidgetStateData>::Value data(const QPaintDevice *object)
     {
         return _data.find(object).data();
     }
 
 private:
     //* map
-    PaintDeviceDataMap<WidgetStateData> _data;
+    DataMap<WidgetStateData> _data;
 };
 
 }
-
-#endif

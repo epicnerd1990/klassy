@@ -1,11 +1,10 @@
-#ifndef WINDOWOUTLINESTYLE_H
-#define WINDOWOUTLINESTYLE_H
-
 /*
  * SPDX-FileCopyrightText: 2023-2024 Paul A McAuley <kde@paulmcauley.com>
  *
  * SPDX-License-Identifier: MIT
  */
+
+#pragma once
 
 #include "breeze.h"
 #include "breezesettings.h"
@@ -22,7 +21,7 @@ class WindowOutlineStyle : public QDialog
     friend class ConfigWidget;
 
 public:
-    explicit WindowOutlineStyle(KSharedConfig::Ptr config, KSharedConfig::Ptr presetsConfig, QWidget *parent = nullptr);
+    explicit WindowOutlineStyle(KSharedConfig::Ptr config, KSharedConfig::Ptr presetsConfig, QObject *parent = nullptr);
     ~WindowOutlineStyle();
 
     void save(const bool reloadKwinConfig = true);
@@ -76,5 +75,3 @@ private:
 };
 
 }
-
-#endif // WINDOWOUTLINESTYLE_H

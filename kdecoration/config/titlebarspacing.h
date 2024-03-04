@@ -1,11 +1,10 @@
-#ifndef TITLEBARSPACING_H
-#define TITLEBARSPACING_H
-
 /*
  * SPDX-FileCopyrightText: 2023 Paul A McAuley <kde@paulmcauley.com>
  *
  * SPDX-License-Identifier: MIT
  */
+
+#pragma once
 
 #include "breeze.h"
 #include "breezesettings.h"
@@ -22,7 +21,7 @@ class TitleBarSpacing : public QDialog
     friend class ConfigWidget;
 
 public:
-    explicit TitleBarSpacing(KSharedConfig::Ptr config, KSharedConfig::Ptr presetsConfig, QWidget *parent = nullptr);
+    explicit TitleBarSpacing(KSharedConfig::Ptr config, KSharedConfig::Ptr presetsConfig, QObject *parent = nullptr);
     ~TitleBarSpacing();
 
     void loadMain(const QString loadPreset = QString());
@@ -75,5 +74,3 @@ private:
 };
 
 }
-
-#endif // TITLEBARSPACING_H

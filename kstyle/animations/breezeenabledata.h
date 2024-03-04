@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef breezeenable_data_h
-#define breezeenable_data_h
+#pragma once
 
 #include "breezewidgetstatedata.h"
 
@@ -19,7 +18,7 @@ class EnableData : public WidgetStateData
 
 public:
     //* constructor
-    EnableData(QObject *parent, QWidget *target, int duration, bool state = true)
+    EnableData(QObject *parent, QObject *target, int duration, bool state = true)
         : WidgetStateData(parent, target, duration, state)
     {
         target->installEventFilter(this);
@@ -30,5 +29,3 @@ public:
 };
 
 }
-
-#endif

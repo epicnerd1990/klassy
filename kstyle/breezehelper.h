@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef breeze_helper_h
-#define breeze_helper_h
+#pragma once
 
 #include "breeze.h"
 #include "breezeanimationdata.h"
@@ -23,6 +22,9 @@
 #include <QPainterPath>
 #include <QToolBar>
 #include <QWidget>
+
+class QSlider;
+class QStyleOptionSlider;
 
 namespace Breeze
 {
@@ -271,6 +273,12 @@ public:
     //* slider groove
     void renderSliderGroove(QPainter *, const QRect &, const QColor &) const;
 
+    //* reimplementation of protected method
+    void initSliderStyleOption(const QSlider *, QStyleOptionSlider *) const;
+
+    //* slider focus frame
+    QRectF pathForSliderHandleFocusFrame(QPainterPath &, const QRect &, int hmargin, int vmargin) const;
+
     //* slider handle
     void renderSliderHandle(QPainter *, const QRect &, const QColor &, const QColor &outline, const QColor &shadow, bool sunken) const;
 
@@ -311,7 +319,7 @@ public:
     //* generic button (for mdi decorations, tabs and dock widgets)
     void renderDecorationButton(QPainter *painter,
                                 const QRect &rect,
-                                KDecoration2::DecorationButtonType buttonType,
+                                DecorationButtonType buttonType,
                                 const bool buttonChecked,
                                 const QColor &foregroundColor,
                                 const bool cutOutForeground,
@@ -368,7 +376,12 @@ public:
         return rect.adjusted(shadowSize, shadowSize, -shadowSize, -shadowSize);
     }
 
-    QPixmap coloredIcon(const QIcon &icon, const QPalette &palette, const QSize &size, QIcon::Mode mode = QIcon::Normal, QIcon::State state = QIcon::Off);
+    QPixmap coloredIcon(const QIcon &icon,
+                        const QPalette &palette,
+                        const QSize &size,
+                        qreal devicePixelRatio,
+                        QIcon::Mode mode = QIcon::Normal,
+                        QIcon::State state = QIcon::Off);
 
 protected:
     //* return rounded path in a given rect, with only selected corners rounded, and for a given radius
@@ -410,5 +423,3 @@ private:
 };
 
 }
-
-#endif

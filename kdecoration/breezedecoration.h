@@ -1,6 +1,3 @@
-#ifndef BREEZE_DECORATION_H
-#define BREEZE_DECORATION_H
-
 /*
  * SPDX-FileCopyrightText: 2014 Martin Gräßlin <mgraesslin@kde.org>
  * SPDX-FileCopyrightText: 2014 Hugo Pereira Da Costa <hugo.pereira@free.fr>
@@ -8,6 +5,8 @@
  *
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
  */
+
+#pragma once
 
 #include "breeze.h"
 
@@ -166,7 +165,11 @@ Q_SIGNALS:
     void reconfigured();
 
 public Q_SLOTS:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    bool init() override;
+#else
     void init() override;
+#endif
 
 private Q_SLOTS:
     void reconfigure()
@@ -203,7 +206,7 @@ private:
     void calculateWindowAndTitleBarShapes(const bool windowShapeOnly = false);
     void paintTitleBar(QPainter *painter, const QRect &repaintRegion);
     void updateShadow(const bool forceUpdateCache = false, bool noCache = false, const bool isThinWindowOutlineOverride = false);
-    QSharedPointer<KDecoration2::DecorationShadow> createShadowObject(QColor shadowColor, const bool isThinWindowOutlineOverride = false);
+    std::shared_ptr<KDecoration2::DecorationShadow> createShadowObject(QColor shadowColor, const bool isThinWindowOutlineOverride = false);
     void setScaledCornerRadius();
 
     //*@name border size
@@ -330,63 +333,53 @@ bool Decoration::hasNoSideBorders() const
 
 bool Decoration::isMaximized() const
 {
-    auto c = client().toStrongRef();
-    Q_ASSERT(c);
+    auto c = client();
     return c->isMaximized() && !m_internalSettings->drawBorderOnMaximizedWindows();
 }
 
 bool Decoration::isMaximizedHorizontally() const
 {
-    auto c = client().toStrongRef();
-    Q_ASSERT(c);
+    auto c = client();
     return c->isMaximizedHorizontally() && !m_internalSettings->drawBorderOnMaximizedWindows();
 }
 
 bool Decoration::isMaximizedVertically() const
 {
-    auto c = client().toStrongRef();
-    Q_ASSERT(c);
+    auto c = client();
     return c->isMaximizedVertically() && !m_internalSettings->drawBorderOnMaximizedWindows();
 }
 
 bool Decoration::isLeftEdge() const
 {
-    auto c = client().toStrongRef();
-    Q_ASSERT(c);
+    auto c = client();
     return (c->isMaximizedHorizontally() || c->adjacentScreenEdges().testFlag(Qt::LeftEdge)) && !m_internalSettings->drawBorderOnMaximizedWindows();
 }
 
 bool Decoration::isRightEdge() const
 {
-    auto c = client().toStrongRef();
-    Q_ASSERT(c);
+    auto c = client();
 
     return (c->isMaximizedHorizontally() || c->adjacentScreenEdges().testFlag(Qt::RightEdge)) && !m_internalSettings->drawBorderOnMaximizedWindows();
 }
 
 bool Decoration::isTopEdge() const
 {
-    auto c = client().toStrongRef();
-    Q_ASSERT(c);
+    auto c = client();
 
     return (c->isMaximizedVertically() || c->adjacentScreenEdges().testFlag(Qt::TopEdge)) && !m_internalSettings->drawBorderOnMaximizedWindows();
 }
 
 bool Decoration::isBottomEdge() const
 {
-    auto c = client().toStrongRef();
-    Q_ASSERT(c);
+    auto c = client();
 
     return (c->isMaximizedVertically() || c->adjacentScreenEdges().testFlag(Qt::BottomEdge)) && !m_internalSettings->drawBorderOnMaximizedWindows();
 }
 
 bool Decoration::hideTitleBar() const
 {
-    auto c = client().toStrongRef();
-    Q_ASSERT(c);
+    auto c = client();
     return m_internalSettings->hideTitleBar() && !c->isShaded();
 }
 
 } // end Breeze namespace
-
-#endif

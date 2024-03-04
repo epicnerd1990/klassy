@@ -195,7 +195,8 @@ void WindowManager::initializeWhiteList()
                                             ExceptionId(QStringLiteral("ViewSliders@kmix")),
                                             ExceptionId(QStringLiteral("Sidebar_Widget@konqueror"))});
 
-    foreach (const QString &exception, StyleConfigData::windowDragWhiteList()) {
+    const auto windowDragWhiteList = StyleConfigData::windowDragWhiteList();
+    for (const QString &exception : windowDragWhiteList) {
         ExceptionId id(exception);
         if (!id.className().isEmpty()) {
             _whiteList.insert(ExceptionId(exception));
@@ -209,7 +210,8 @@ void WindowManager::initializeBlackList()
     _blackList = Util::makeT<ExceptionSet>(
         {ExceptionId(QStringLiteral("CustomTrackView@kdenlive")), ExceptionId(QStringLiteral("MuseScore")), ExceptionId(QStringLiteral("KGameCanvasWidget"))});
 
-    foreach (const QString &exception, StyleConfigData::windowDragBlackList()) {
+    const auto windowDragBlackList = StyleConfigData::windowDragBlackList();
+    for (const QString &exception : windowDragBlackList) {
         ExceptionId id(exception);
         if (!id.className().isEmpty()) {
             _blackList.insert(ExceptionId(exception));
@@ -359,7 +361,8 @@ bool WindowManager::mousePressEvent(QObject *object, QEvent *event)
     } else {
         child = widget;
     }
-    QMouseEvent localMouseEvent(QEvent::MouseMove, localPoint, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    QMouseEvent localMouseEvent(QEvent::MouseMove, localPoint, Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
+    localMouseEvent.setTimestamp(mouseEvent->timestamp());
     qApp->sendEvent(child, &localMouseEvent);
 
     // never eat event
@@ -502,7 +505,7 @@ bool WindowManager::isBlackListed(QWidget *widget)
 
     // list-based blacklisted widgets
     const auto appName(qApp->applicationName());
-    foreach (const ExceptionId &id, _blackList) {
+    for (const ExceptionId &id : std::as_const(_blackList)) {
         if (!id.appName().isEmpty() && id.appName() != appName) {
             continue;
         }
@@ -524,7 +527,7 @@ bool WindowManager::isBlackListed(QWidget *widget)
 bool WindowManager::isWhiteListed(QWidget *widget) const
 {
     const auto appName(qApp->applicationName());
-    foreach (const ExceptionId &id, _whiteList) {
+    for (const ExceptionId &id : std::as_const(_whiteList)) {
         if (!(id.appName().isEmpty() || id.appName() == appName)) {
             continue;
         }

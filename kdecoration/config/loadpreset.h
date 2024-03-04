@@ -1,11 +1,10 @@
-#ifndef LOADPRESET_H
-#define LOADPRESET_H
-
 /*
  * SPDX-FileCopyrightText: 2023 Paul A McAuley <kde@paulmcauley.com>
  *
  * SPDX-License-Identifier: MIT
  */
+
+#pragma once
 
 #include "addpreset.h"
 #include "breeze.h"
@@ -20,7 +19,7 @@ class LoadPreset : public QDialog
     Q_OBJECT
 
 public:
-    explicit LoadPreset(KSharedConfig::Ptr config, KSharedConfig::Ptr presetsConfig, QWidget *parent = nullptr);
+    explicit LoadPreset(KSharedConfig::Ptr config, KSharedConfig::Ptr presetsConfig, QObject *parent = nullptr);
     ~LoadPreset();
     void initPresetsList();
 
@@ -40,8 +39,7 @@ private:
     KSharedConfig::Ptr m_configuration;
     //* presets kconfiguration object
     KSharedConfig::Ptr m_presetsConfiguration;
-    QWidget *m_parent;
+    QObject *m_parent;
 };
 
 }
-#endif // LOADPRESET_H

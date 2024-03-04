@@ -1,12 +1,11 @@
-#ifndef breeze_h
-#define breeze_h
-
 /*
  * SPDX-FileCopyrightText: 2014 Hugo Pereira Da Costa <hugo.pereira@free.fr>
  * SPDX-FileCopyrightText: 2022 Paul A McAuley <kde@paulmcauley.com>
  *
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
  */
+
+#pragma once
 
 #define KLASSY_DECORATION_DEBUG_MODE 0
 #define KLASSY_STYLE_DEBUG_MODE 0
@@ -47,6 +46,70 @@ struct BREEZECOMMON_EXPORT PenWidth {
 
     // A value for pen width arguments to make it clear that there is no pen stroke
     static constexpr int NoPen = 0;
+};
+
+// copied from KDecoration2/src/decorationdefines.h -- needs to be kept in sync
+// originally Klassy linked directly to KDecoration2 but this did not work on the combined Qt5/Qt6 build on Plasma 6 with Qt5 applications
+enum class DecorationButtonType {
+    /**
+     * The Menu button requests showing the window menu on left or right click.
+     **/
+    Menu,
+    /**
+     * The ApplicationMenu button requests showing the application's menu on left or right click.
+     */
+    ApplicationMenu,
+    /**
+     * The OnAllDesktops button requests toggling the DecoratedClient's on all desktops state.
+     * The DecoratedButton is only visible if multiple virtual desktops are available.
+     **/
+    OnAllDesktops,
+    /**
+     * The Minimize button requests minimizing the DecoratedClient. The DecorationButton is only
+     * enabled if the DecoratedClient is minimizeable.
+     **/
+    Minimize,
+    /**
+     * The Maximize button requests maximizing the DecoratedClient. The DecorationButton is checkable
+     * and if the DecoratedClient is maximized the DecorationButton is checked. The DecorationButton
+     * supports multiple mouse buttons to change horizontal, vertical and overall maximized state.
+     *
+     * The DecorationButton is only enabled if the DecoratedClient is maximizeable.
+     **/
+    Maximize,
+    /**
+     * The Close button requests closing the DecoratedClient. The DecorationButton is only enabled
+     * if the DecoratedClient is closeable.
+     **/
+    Close,
+    /**
+     * The ContextHelp button requests entering the context help mode. The DecorationButton is only
+     * visible if the DecoratedClient provides context help.
+     **/
+    ContextHelp,
+    /**
+     * The Shade button requests toggling the DecoratedClient's shaded state. The DecoratedButton
+     * is only enabled if the DecoratedClient is shadeable.
+     **/
+    Shade,
+    /**
+     * The KeepBelow button requests toggling the DecoratedClient's keep below state.
+     **/
+    KeepBelow,
+    /**
+     * The KeepAbove button requests toggling the DecoratedClient's keep above state.
+     **/
+    KeepAbove,
+    /**
+     * The Custom type allows a Decoration to provide custom DecorationButtons.
+     **/
+    Custom,
+    /**
+     * The Spacer button provides some space between buttons.
+     */
+    Spacer,
+
+    COUNT
 };
 
 // list of keys used for window decoration exceptions
@@ -175,5 +238,3 @@ enum BREEZECOMMON_EXPORT ArrowOrientation {
 Q_DECLARE_OPERATORS_FOR_FLAGS(Breeze::AnimationModes)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Breeze::Corners)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Breeze::Sides)
-
-#endif

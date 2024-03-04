@@ -1,15 +1,14 @@
-#ifndef BREEZE_SYSTEMICONTHEME_H
-#define BREEZE_SYSTEMICONTHEME_H
-
 /*
  * SPDX-FileCopyrightText: 2022 Paul A McAuley <kde@paulmcauley.com>
  *
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
  */
+
+#pragma once
+
+#include "breeze.h"
 #include "breezecommon_export.h"
 #include "breezesettings.h"
-#include <KDecoration2/DecorationButton>
-#include <KDecoration2/DecorationSettings>
 #include <QPainter>
 #include <QPalette>
 
@@ -43,7 +42,7 @@ public:
 
     //* When "Use system icon theme" is selected for the icons then not all icons are available as a window-*-symbolic icon
     //* ouputs systemIconName and systemIconCheckedName
-    static void systemIconNames(KDecoration2::DecorationButtonType type, QString &systemIconName, QString &systemIconCheckedName);
+    static void systemIconNames(DecorationButtonType type, QString &systemIconName, QString &systemIconCheckedName);
     static QString isSystemIconNameAvailable(const QString &preferredIconName, const QString &backupIconName);
 
 private:
@@ -57,5 +56,3 @@ private:
 };
 
 }
-
-#endif

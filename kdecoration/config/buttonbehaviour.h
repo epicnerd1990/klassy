@@ -1,11 +1,10 @@
-#ifndef BUTTONBEHAVIOUR_H
-#define BUTTONBEHAVIOUR_H
-
 /*
  * SPDX-FileCopyrightText: 2023-2024 Paul A McAuley <kde@paulmcauley.com>
  *
  * SPDX-License-Identifier: MIT
  */
+
+#pragma once
 
 #include "breeze.h"
 #include "breezesettings.h"
@@ -24,7 +23,7 @@ class ButtonBehaviour : public QDialog
     friend class ConfigWidget;
 
 public:
-    explicit ButtonBehaviour(KSharedConfig::Ptr config, KSharedConfig::Ptr presetsConfig, QWidget *parent = nullptr);
+    explicit ButtonBehaviour(KSharedConfig::Ptr config, KSharedConfig::Ptr presetsConfig, QObject *parent = nullptr);
     ~ButtonBehaviour();
 
     void loadMain(const bool assignUiValuesOnly = false);
@@ -126,5 +125,3 @@ private:
 };
 
 }
-
-#endif // BUTTONBEHAVIOUR_H

@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef breezestyleconfigmodule_h
-#define breezestyleconfigmodule_h
+#pragma once
 
 #include "breezestyleconfig.h"
 
@@ -20,7 +19,11 @@ class ConfigurationModule : public KCModule
     Q_OBJECT
 
 public:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    ConfigurationModule(QObject *parent, const KPluginMetaData &data);
+#else
     ConfigurationModule(QWidget *parent, const QVariantList &args);
+#endif
 
 public Q_SLOTS:
 
@@ -34,5 +37,3 @@ private:
 };
 
 }
-
-#endif

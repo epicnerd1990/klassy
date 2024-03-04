@@ -1,18 +1,15 @@
-#ifndef BREEZE_RENDERDECORATIONBUTTONICON_H
-#define BREEZE_RENDERDECORATIONBUTTONICON_H
-
 /*
  * SPDX-FileCopyrightText: 2021-2024 Paul A McAuley <kde@paulmcauley.com>
  *
  * SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
  */
 
+#pragma once
+
 #include "breeze.h"
 #include "breezecommon_export.h"
 #include "breezesettings.h"
 
-#include <KDecoration2/DecorationButton>
-#include <KDecoration2/DecorationSettings>
 #include <QPainter>
 #include <QPainterPath>
 #include <memory>
@@ -77,7 +74,7 @@ public:
     {
         m_strokeToFilledPath = v;
     }
-    void renderIcon(KDecoration2::DecorationButtonType type, bool checked);
+    void renderIcon(DecorationButtonType type, bool checked);
 
 protected:
     /**
@@ -233,5 +230,3 @@ protected:
 };
 
 }
-
-#endif

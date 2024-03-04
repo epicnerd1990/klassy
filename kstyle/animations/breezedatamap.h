@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef breezedatamap_h
-#define breezedatamap_h
+#pragma once
 
 #include "breeze.h"
 
@@ -17,29 +16,16 @@ namespace Breeze
 {
 
 //* data map
-/** it maps templatized data object to associated object */
-template<typename K, typename T>
-class BaseDataMap : public QMap<const K *, WeakPointer<T>>
+/** it maps an opaque pointer an associated QPointer<object> */
+template<typename T>
+class DataMap : public QMap<const void *, WeakPointer<T>>
 {
 public:
-    using Key = const K *;
+    using Key = const void *;
     using Value = WeakPointer<T>;
 
-    //* constructor
-    BaseDataMap()
-        : QMap<Key, Value>()
-        , _enabled(true)
-        , _lastKey(NULL)
-    {
-    }
-
-    //* destructor
-    virtual ~BaseDataMap()
-    {
-    }
-
     //* insertion
-    virtual typename QMap<Key, Value>::iterator insert(const Key &key, const Value &value, bool enabled = true)
+    typename QMap<Key, Value>::iterator insert(const Key &key, const Value &value, bool enabled = true)
     {
         if (value) {
             value.data()->setEnabled(enabled);
@@ -80,7 +66,7 @@ public:
             if (_lastValue) {
                 _lastValue.clear();
             }
-            _lastKey = NULL;
+            _lastKey = nullptr;
         }
 
         // find key in map
@@ -102,7 +88,7 @@ public:
     void setEnabled(bool enabled)
     {
         _enabled = enabled;
-        foreach (const Value &value, *this) {
+        for (const Value &value : std::as_const(*this)) {
             if (value) {
                 value.data()->setEnabled(enabled);
             }
@@ -118,7 +104,7 @@ public:
     //* duration
     void setDuration(int duration) const
     {
-        foreach (const Value &value, *this) {
+        for (const Value &value : std::as_const(*this)) {
             if (value) {
                 value.data()->setDuration(duration);
             }
@@ -127,47 +113,12 @@ public:
 
 private:
     //* enability
-    bool _enabled;
+    bool _enabled = false;
 
     //* last key
-    Key _lastKey;
+    Key _lastKey = nullptr;
 
     //* last value
     Value _lastValue;
 };
-
-//* standard data map, using QObject as a key
-template<typename T>
-class DataMap : public BaseDataMap<QObject, T>
-{
-public:
-    //* constructor
-    DataMap()
-    {
-    }
-
-    //* destructor
-    virtual ~DataMap()
-    {
-    }
-};
-
-//* QPaintDevice based dataMap
-template<typename T>
-class PaintDeviceDataMap : public BaseDataMap<QPaintDevice, T>
-{
-public:
-    //* constructor
-    PaintDeviceDataMap()
-    {
-    }
-
-    //* destructor
-    virtual ~PaintDeviceDataMap()
-    {
-    }
-};
-
 }
-
-#endif

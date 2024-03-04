@@ -13,17 +13,18 @@ set(CMAKE_AUTORCC ON)
 kcoreaddons_add_plugin(klassystyleconfig SOURCES
     ${kstyle_breeze_config_PART_SRCS}
     ${kstyle_breeze_config_PART_FORMS_HEADERS}
-    INSTALL_NAMESPACE "plasma/kcms/systemsettings_qwidgets"
+    INSTALL_NAMESPACE "kstyle_config"
 )
 
-find_package(Qt${QT_MAJOR_VERSION} ${QT_MIN_VERSION} REQUIRED CONFIG COMPONENTS Svg Xml)
-
-target_link_libraries(klassystyleconfig Qt::Core Qt::Gui Qt::Widgets Qt::DBus)
-target_link_libraries(klassystyleconfig KF5::CoreAddons KF5::ConfigCore KF5::ConfigWidgets KF5::I18n)
+target_link_libraries(klassystyleconfig Qt6::Core Qt6::Gui Qt6::Widgets Qt6::DBus)
+target_link_libraries(klassystyleconfig KF6::CoreAddons KF6::ConfigCore KF6::ConfigWidgets KF6::I18n)
+if(QT_MAJOR_VERSION STREQUAL "6")
+    target_link_libraries(klassystyleconfig KF6::KCMUtils)
+endif()
 kcmutils_generate_desktop_file(klassystyleconfig)
 
 include_directories(${CMAKE_SOURCE_DIR}/libbreezecommon)
-include_directories(${CMAKE_BINARY_DIR}/libbreezecommon)
+include_directories(${CMAKE_BINARY_DIR}/libbreezecommon6)
 
 
 set(breeze_settings_SOURCES
@@ -31,9 +32,9 @@ set(breeze_settings_SOURCES
     systemicongenerator.cpp
 )
 add_executable(klassy-settings ${breeze_settings_SOURCES} )
-target_link_libraries(klassy-settings Qt::Core Qt::Gui Qt::Widgets Qt::Svg Qt::Xml)
-target_link_libraries(klassy-settings KF5::I18n KF5::KCMUtils KF5::CoreAddons)
-target_link_libraries(klassy-settings klassycommon5)
+target_link_libraries(klassy-settings Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Svg Qt6::Xml)
+target_link_libraries(klassy-settings KF6::I18n KF6::KCMUtils KF6::CoreAddons)
+target_link_libraries(klassy-settings klassycommon6)
 
 install(TARGETS klassy-settings ${KDE_INSTALL_TARGETS_DEFAULT_ARGS})
 

@@ -4,8 +4,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef breezetabbarengine_h
-#define breezetabbarengine_h
+#pragma once
 
 #include "breeze.h"
 #include "breezebaseengine.h"
@@ -28,10 +27,10 @@ public:
     }
 
     //* register tabbar
-    bool registerWidget(QWidget *);
+    bool registerWidget(QObject *target);
 
     //* true if widget hover state is changed
-    bool updateState(const QObject *, const QPoint &, AnimationMode, bool);
+    bool updateState(const QObject *object, const QPoint &, AnimationMode, bool);
 
     //* true if widget is animated
     bool isAnimated(const QObject *object, const QPoint &point, AnimationMode);
@@ -86,5 +85,3 @@ private:
 };
 
 }
-
-#endif

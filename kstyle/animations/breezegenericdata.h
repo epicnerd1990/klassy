@@ -4,14 +4,14 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef breezegeneric_data_h
-#define breezegeneric_data_h
+#pragma once
 
 #include "breezeanimation.h"
 #include "breezeanimationdata.h"
 
 #include <QObject>
 #include <QTextStream>
+
 namespace Breeze
 {
 
@@ -25,7 +25,7 @@ class GenericData : public AnimationData
 
 public:
     //* constructor
-    GenericData(QObject *parent, QWidget *widget, int duration);
+    GenericData(QObject *parent, QObject *target, int duration);
 
     //* return animation object
     const Animation::Pointer &animation() const
@@ -66,5 +66,3 @@ private:
 };
 
 }
-
-#endif
