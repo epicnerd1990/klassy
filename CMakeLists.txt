@@ -37,20 +37,13 @@ include(KDEGitCommitHooks)
 
 include(GtkUpdateIconCache)
 
-option(BUILD_QT5 "Build Qt5 style" ON)
 option(BUILD_QT6 "Build with Qt6" ON)
 
 set(QT_NO_CREATE_VERSIONLESS_TARGETS ON)
 set(QT_NO_CREATE_VERSIONLESS_FUNCTIONS ON)
 
-# For KDE CI only. As the current infrastructure doesn't allow us to set CMAKE options per build variant
-if($ENV{CI_JOB_NAME_SLUG} MATCHES "qt5")
-    set(BUILD_QT5 ON)
-    set(BUILD_QT6 OFF)
-elseif($ENV{CI_JOB_NAME_SLUG} MATCHES "qt6")
-    set(BUILD_QT5 OFF)
-    set(BUILD_QT6 ON)
-endif()
+set(BUILD_QT5 OFF)
+set(BUILD_QT6 ON)
 
 if(WIN32 OR APPLE)
     set(WITH_DECORATIONS OFF)
